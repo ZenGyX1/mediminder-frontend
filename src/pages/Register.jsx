@@ -21,7 +21,7 @@ export default function Register({ setAuthPage }) {
 
     try {
       // 发送请求到 PHP 后端的注册接口
-      const response = await fetch("http://mediminder-api.test/api/register", {
+      const response = await fetch("http://mediminder-api-production.up.railway.app", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),

@@ -11,7 +11,7 @@ export default function Login({ setAuthPage, setIsAuthenticated, setRole }) {
 
     try {
       // 发送请求到 PHP 后端 (请确保 URL 和你的 Laragon 本地地址一致)
-      const response = await fetch("http://mediminder-api.test/api/login", {
+      const response = await fetch("http://mediminder-api-production.up.railway.app", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
