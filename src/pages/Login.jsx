@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // 引入 React Router 的跳转工具
 
 export default function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const navigate = useNavigate(); // 启动跳转工具
 
     const handleLogin = async (e) => {
-        // 防止表单默认提交刷新页面
         if (e) e.preventDefault();
         
-        // 强制写死云端完整接口地址，坚决杜绝环境变量问题
         const API_URL = "https://mediminder-api-production.up.railway.app/api/login";
         
         try {
@@ -19,11 +19,9 @@ export default function Login() {
             });
             
             const result = await response.json();
-            console.log("登录响应:", result);
             
             if (result.status === "success") {
                 alert("登录成功！准备进入系统...");
-                // 登录成功后直接跳转到控制台
                 window.location.href = "/dashboard";
             } else {
                 alert("登录失败: " + result.message);
@@ -68,7 +66,14 @@ export default function Login() {
                 </button>
                 
                 <p style={{ textAlign: 'center', marginTop: '24px', fontSize: '14px', color: '#7f8c8d' }}>
-                    Don't have an account? <span style={{ color: '#20c997', cursor: 'pointer', fontWeight: 'bold' }}>Sign Up</span>
+                    Don't have an account? 
+                    {/* 重点看这里：加了 onClick 事件，点击就会跳转到注册页！ */}
+                    <span 
+                        onClick={() => navigate('/register')} 
+                        style={{ color: '#20c997', cursor: 'pointer', fontWeight: 'bold', marginLeft: '5px' }}
+                    >
+                        Sign Up
+                    </span>
                 </p>
             </div>
         </div>
