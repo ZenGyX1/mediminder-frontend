@@ -1,90 +1,93 @@
-import { useState } from "react";
+import React, { useState } from 'react';
 
-export default function Register({ setAuthPage }) {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    role: "patient",
-    dob: ""
-  });
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
+export default function Register() {
+    const [name, setName] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+    const handleRegister = async (e) => {
+        if (e) e.preventDefault();
+        
+        // 强制写死你的云端注册接口绝对地址
+        const API_URL = "https://mediminder-api-production.up.railway.app/api/register";
+        
+        try {
+            const response = await fetch(API_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                // 确保把后端的必填项全部传过去
+                body: JSON.stringify({ name, email, password, role: 'patient' })
+            });
+            
+            const result = await response.json();
+            console.log("注册响应:", result);
+            
+            if (result.status === "success" || result.status === 201) {
+                alert("🎉 注册成功！请使用新账号登录。");
+                // 注册成功后，原生跳转回登录页
+                window.location.href = "/"; // 如果你的登录页是 /login，请把这里改成 "/login"
+            } else {
+                alert("注册失败: " + (result.message || "未知错误"));
+            }
+        } catch (err) {
+            console.error(err);
+            alert("网络请求失败，请检查控制台报错！");
+        }
+    };
 
-  const handleRegister = async (e) => {
-    e.preventDefault();
-    setError("");
+    return (
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#f4f7f6', fontFamily: 'sans-serif' }}>
+            <div style={{ backgroundColor: 'white', padding: '40px', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', width: '100%', maxWidth: '380px' }}>
+                <h2 style={{ textAlign: 'center', color: '#2c3e50', marginBottom: '10px' }}>Create an Account</h2>
+                <p style={{ textAlign: 'center', color: '#7f8c8d', marginBottom: '30px' }}>Join MediMinder today</p>
+                
+                <div style={{ marginBottom: '15px' }}>
+                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', color: '#34495e', fontWeight: '500' }}>Full Name</label>
+                    <input 
+                        type="text" 
+                        placeholder="John Doe"
+                        onChange={(e) => setName(e.target.value)} 
+                        style={{ width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid #dcdde1', boxSizing: 'border-box', outline: 'none' }}
+                    />
+                </div>
 
-    try {
-      // 发送请求到 PHP 后端的注册接口
-      const response = await fetch(const API_URL = "https://mediminder-api-production.up.railway.app/api/register";);
-
-      const data = await response.json();
-
-      if (response.ok && data.status !== "error") {
-        setSuccess(true);
-        // 注册成功后，延迟 1.5 秒自动跳回登录页
-        setTimeout(() => setAuthPage("login"), 1500);
-      } else {
-        setError(data.message || "注册失败，请重试");
-      }
-    } catch (err) {
-      setError("网络错误：无法连接到后端服务器");
-      console.error(err);
-    }
-  };
-
-  return (
-    <div className="auth-container">
-      <div className="auth-card">
-        <h2>Create an Account</h2>
-        <p className="auth-subtitle">Join MediMinder today</p>
-
-        {error && <div className="auth-error">{error}</div>}
-        {success && <div className="auth-success">注册成功！正在跳转登录...</div>}
-
-        <form onSubmit={handleRegister} className="auth-form">
-          <div className="form-group">
-            <label>Full Name</label>
-            <input type="text" name="name" value={formData.name} onChange={handleChange} required />
-          </div>
-          
-          <div className="form-group">
-            <label>Email Address</label>
-            <input type="email" name="email" value={formData.email} onChange={handleChange} required />
-          </div>
-
-          <div className="form-group">
-            <label>Password</label>
-            <input type="password" name="password" value={formData.password} onChange={handleChange} required />
-          </div>
-
-          <div className="form-row">
-            <div className="form-group">
-              <label>Role</label>
-              <select name="role" value={formData.role} onChange={handleChange}>
-                <option value="patient">Patient (患者)</option>
-                <option value="caregiver">Caregiver (看护者)</option>
-              </select>
+                <div style={{ marginBottom: '15px' }}>
+                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', color: '#34495e', fontWeight: '500' }}>Email Address</label>
+                    <input 
+                        type="email" 
+                        placeholder="your@email.com"
+                        onChange={(e) => setEmail(e.target.value)} 
+                        style={{ width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid #dcdde1', boxSizing: 'border-box', outline: 'none' }}
+                    />
+                </div>
+                
+                <div style={{ marginBottom: '30px' }}>
+                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', color: '#34495e', fontWeight: '500' }}>Password</label>
+                    <input 
+                        type="password" 
+                        placeholder="••••••••"
+                        onChange={(e) => setPassword(e.target.value)} 
+                        style={{ width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid #dcdde1', boxSizing: 'border-box', outline: 'none' }}
+                    />
+                </div>
+                
+                <button 
+                    onClick={handleRegister} 
+                    style={{ width: '100%', padding: '14px', backgroundColor: '#3498db', color: 'white', border: 'none', borderRadius: '6px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', transition: 'background-color 0.3s' }}
+                >
+                    Sign Up
+                </button>
+                
+                <p style={{ textAlign: 'center', marginTop: '24px', fontSize: '14px', color: '#7f8c8d' }}>
+                    Already have an account? 
+                    <a 
+                        href="/"  // 如果你的登录页是 /login，请把这里改成 "/login"
+                        style={{ color: '#3498db', cursor: 'pointer', fontWeight: 'bold', marginLeft: '5px', textDecoration: 'none' }}
+                    >
+                        Sign In
+                    </a>
+                </p>
             </div>
-            <div className="form-group">
-              <label>Date of Birth</label>
-              <input type="date" name="dob" value={formData.dob} onChange={handleChange} required />
-            </div>
-          </div>
-
-          <button type="submit" className="auth-btn">Sign Up</button>
-        </form>
-
-        <p className="auth-switch">
-          Already have an account? 
-          <span onClick={() => setAuthPage("login")}> Sign In</span>
-        </p>
-      </div>
-    </div>
-  );
+        </div>
+    );
 }
