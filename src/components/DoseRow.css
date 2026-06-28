@@ -1,0 +1,82 @@
+.dose-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #e8eaed;
+  margin-bottom: 6px;
+  transition: background 0.12s;
+}
+.dose-taken   { border-color: #5DCAA5; background: #E1F5EE; }
+.dose-skipped { border-color: #B4B2A9; background: #F1EFE8; opacity: 0.75; }
+.dose-upcoming {}
+
+.dose-time {
+  font-size: 11px;
+  color: #6b7280;
+  width: 52px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.dose-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 16px;
+}
+
+.dose-name { font-size: 13px; font-weight: 600; color: #1a1a1a; }
+.dose-info { font-size: 11px; color: #6b7280; }
+
+.dose-actions {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background 0.12s;
+  white-space: nowrap;
+}
+
+.chip-take {
+  background: var(--teal-light);
+  color: var(--teal-dark);
+  border-color: var(--teal-mid);
+}
+.chip-take:hover { background: var(--teal); color: #fff; }
+
+.chip-skip {
+  background: #F1EFE8;
+  color: #5F5E5A;
+  border-color: #B4B2A9;
+}
+.chip-skip:hover { background: #D3D1C7; }
+
+.chip-taken {
+  background: var(--teal);
+  color: #fff;
+  cursor: default;
+}
+
+.chip-skipped {
+  background: var(--gray-mid);
+  color: #fff;
+  cursor: default;
+}
