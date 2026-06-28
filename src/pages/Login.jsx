@@ -66,15 +66,15 @@ export default function Login() {
                 </button>
                 
                 <p style={{ textAlign: 'center', marginTop: '24px', fontSize: '14px', color: '#7f8c8d' }}>
-                    Don't have an account? 
-                    {/* 重点看这里：加了 onClick 事件，点击就会跳转到注册页！ */}
-                    <span 
-                        onClick={() => navigate('/register')} 
-                        style={{ color: '#20c997', cursor: 'pointer', fontWeight: 'bold', marginLeft: '5px' }}
-                    >
-                        Sign Up
-                    </span>
-                </p>
+    Don't have an account? 
+    {/* 重点看这里：使用原生的 window.location.href，无视任何 React 路由限制，强行跳转！ */}
+    <span 
+        onClick={() => { window.location.href = '/register'; }} 
+        style={{ color: '#20c997', cursor: 'pointer', fontWeight: 'bold', marginLeft: '5px' }}
+    >
+        Sign Up
+    </span>
+</p>
             </div>
         </div>
     );
