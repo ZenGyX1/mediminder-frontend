@@ -26,7 +26,6 @@ const handleLogout = () => {
     setIsAuthenticated(false);
 };
   // 原有的角色和页面状态
-  const [role, setRole] = useState("patient");
   const [page, setPage] = useState("today");
 
   // === 2. 移动端侧边栏状态 ===
