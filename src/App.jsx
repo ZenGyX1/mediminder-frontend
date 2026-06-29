@@ -16,8 +16,16 @@ import "./App.css";
 export default function App() {
   // === 1. 鉴权与路由状态 ===
   // 🚨 修改：每次刷新时，先去本地硬盘看一眼是不是登录过了
+// === 1. 从硬盘读取的登录状态 ===
 const [isAuthenticated, setIsAuthenticated] = useState(localStorage.getItem("isAuthenticated") === "true");
 const [role, setRole] = useState(localStorage.getItem("userRole") || "");
+
+// === 2. 页面的导航状态 ===
+const [page, setPage] = useState("today");
+const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+// 🚨 补上这行控制登录/注册页面的状态！
+const [authPage, setAuthPage] = useState("login");
 
 // 顺便加上退出登录的功能（绑定到你的 Logout 按钮上）
 const handleLogout = () => {
