@@ -18,51 +18,21 @@ function adherenceColor(pct) {
 }
 
 export default function PatientDashboard() {
-  // === 原有的状态 ===
   const [doses, setDoses] = useState([]); 
   const today = new Date().toLocaleDateString("en-MY", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
 
-  // === 【新增】：弹窗开关和表单数据 ===
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newMed, setNewMed] = useState({ medName: "Panadol", dose: "500mg", time: "08:00 AM", color: "teal" });
 
-  // === 【新增】：处理表单提交的函数 ===
-  const handleAddMedication = async (e) => {
-    e.preventDefault();
-    
-    // 1. 生成一个临时 ID，并构建新药物的数据结构
-    const addedDose = {
-      id: Math.floor(Math.random() * 10000) + 100, // 随机生成一个 ID
-      time: newMed.time,
-      medName: newMed.medName,
-      dose: newMed.dose,
-      color: newMed.color,
-      status: "upcoming" // 刚添加的药，默认没吃
-    };
-
-    // 2. 【核心】瞬间更新前端页面，让新药出现在列表里
-    setDoses(prev => [...prev, addedDose]);
-    setIsModalOpen(false); // 关闭弹窗
-
-    // 3. 把新药发送给 PHP 后端 (即使后端还没存进复杂的关联表，前端也已经成功展示了)
-    try {
-      await fetch("http://mediminder-api-production.up.railway.app", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(addedDose),
-      });
-    } catch (error) {
-      console.error("发送到后端失败:", error);
-    }
-  };
-  // 【核心新增】页面加载时，自动向 PHP 后端索要今天的数据
+  // === 页面加载时，自动向 PHP 后端索要今天的数据 ===
   useEffect(() => {
     const fetchSchedule = async () => {
       try {
-        const response = await fetch("http://mediminder-api-production.up.railway.app");
+        // 🚨 修正：使用了 https 和精准的 /api/doses 路径
+        const response = await fetch("https://mediminder-api-production.up.railway.app/api/doses");
         const result = await response.json();
         if (result.status === "success") {
-          setDoses(result.data); // 将数据库返回的真实状态装载进页面
+          setDoses(result.data); 
         }
       } catch (error) {
         console.error("无法连接到后端获取日程:", error);
@@ -71,15 +41,47 @@ export default function PatientDashboard() {
     fetchSchedule();
   }, []);
 
-  // 【核心修改】点击按钮时，不仅改变前端画面，还要发送到数据库
+  // === 处理添加药物表单提交 ===
+  const handleAddMedication = async (e) => {
+    e.preventDefault();
+    
+    // 1. 生成一个临时 ID，并构建新药物的数据结构
+    const addedDose = {
+      id: Math.floor(Math.random() * 10000) + 100, 
+      time: newMed.time,
+      medName: newMed.medName,
+      dose: newMed.dose,
+      color: newMed.color,
+      status: "upcoming" 
+    };
+
+    // 2. 立刻更新前端页面
+    setDoses(prev => [...prev, addedDose]);
+    setIsModalOpen(false); 
+
+    // 3. 把新药发送给 PHP 后端真实保存
+    try {
+      // 🚨 修正：使用了正确的添加药物接口 /api/medications/add
+      await fetch("https://mediminder-api-production.up.railway.app/api/medications/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(addedDose),
+      });
+    } catch (error) {
+      console.error("发送到后端失败:", error);
+    }
+  };
+
+  // === 点击按钮时，更新数据库打卡状态 ===
   const mark = async (id, status) => {
-    // 1. 乐观更新：立刻让前端画面发生变化（不需要等服务器回传，感觉更流畅）
+    // 1. 乐观更新：立刻让前端画面发生变化
     const nowStr = new Date().toLocaleTimeString("en-US", { hour: 'numeric', minute: '2-digit', hour12: true });
     setDoses(prev => prev.map(d => d.id === id ? { ...d, status, takenAt: nowStr } : d));
 
-    // 2. 真实动作：把结果告诉数据库的 dose_logs 表
+    // 2. 真实动作：告诉数据库更新 dose_logs 表
     try {
-      await fetch("http://mediminder-api-production.up.railway.app", {
+      // 🚨 修正：使用了正确的打卡接口 /api/doses/mark
+      await fetch("https://mediminder-api-production.up.railway.app/api/doses/mark", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id, status }),
@@ -106,8 +108,8 @@ export default function PatientDashboard() {
             <i className="ti ti-download" aria-hidden="true" /> Export report
           </button>
           <button className="btn btn-primary" onClick={() => setIsModalOpen(true)}>
-  <i className="ti ti-plus" aria-hidden="true" /> Add medication
-</button>
+            <i className="ti ti-plus" aria-hidden="true" /> Add medication
+          </button>
         </div>
       </div>
 
@@ -186,7 +188,7 @@ export default function PatientDashboard() {
                                     <i className="ti ti-check" style={{ fontSize: 12 }} /> Mark taken
                                   </button>
                                   <button className="chip chip-skip" onClick={() => mark(dose.id, "skipped")}>
-                                    Skip
+                                    <i className="ti ti-check" style={{ fontSize: 12 }} /> Skip
                                   </button>
                                 </>
                               )}
@@ -237,7 +239,8 @@ export default function PatientDashboard() {
           </div>
         </div>
       </div>
-      {/* === 【新增】：真实弹出的表单 === */}
+      
+      {/* === 真实弹出的表单 === */}
       {isModalOpen && (
         <div className="modal-overlay">
           <div className="modal-card">
@@ -280,7 +283,6 @@ export default function PatientDashboard() {
           </div>
         </div>
       )}
-      {/* === 弹窗结束 === */}
     </>
   );
 }

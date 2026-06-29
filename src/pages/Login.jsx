@@ -9,27 +9,37 @@ export default function Login({ setAuthPage, setIsAuthenticated, setRole }) {
         if (e) e.preventDefault();
         const API_URL = "https://mediminder-api-production.up.railway.app/api/login";
         
+        // 👇 try 开始了！
         try {
             const response = await fetch(API_URL, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, password })
             });
+            
             const result = await response.json();
             
-            if (result.status === "success") {
-                alert("登录成功！");
-                // 核心：调用 App.jsx 的方法解锁主界面！
+            // 🚨 核心重点：必须写在这个 if 里面！
+            if (response.ok && result.status === "success") {
+                alert("🎉 登录成功！");
+                
+                // ===== 【写在这里！】=====
+                // 只有拿到服务器的 Success 通行证，才把状态刻进硬盘
+                localStorage.setItem("isAuthenticated", "true");
+                localStorage.setItem("userRole", result.role || "patient");
+                // ==========================
+                
                 if (result.role) setRole(result.role);
                 setIsAuthenticated(true); 
             } else {
-                alert("登录失败: " + result.message);
+                alert("登录失败: " + (result.message || "未知原因"));
             }
         } catch (err) {
-            alert("网络错误，无法连接服务器！");
+            // 👇 如果网络断了，直接跳到这里报错，根本不会执行存硬盘的代码
+            console.error("Fetch 错误:", err);
+            alert("无法连接服务器，请检查网络！");
         }
     };
-
     return (
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#f4f7f6', fontFamily: 'sans-serif' }}>
             <div style={{ backgroundColor: 'white', padding: '40px', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', width: '100%', maxWidth: '380px' }}>

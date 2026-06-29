@@ -15,9 +15,16 @@ import "./App.css";
 
 export default function App() {
   // === 1. 鉴权与路由状态 ===
-  const [isAuthenticated, setIsAuthenticated] = useState(false); // 默认未登录
-  const [authPage, setAuthPage] = useState("login"); // 控制显示登录还是注册
+  // 🚨 修改：每次刷新时，先去本地硬盘看一眼是不是登录过了
+const [isAuthenticated, setIsAuthenticated] = useState(localStorage.getItem("isAuthenticated") === "true");
+const [role, setRole] = useState(localStorage.getItem("userRole") || "");
 
+// 顺便加上退出登录的功能（绑定到你的 Logout 按钮上）
+const handleLogout = () => {
+    localStorage.removeItem("isAuthenticated");
+    localStorage.removeItem("userRole");
+    setIsAuthenticated(false);
+};
   // 原有的角色和页面状态
   const [role, setRole] = useState("patient");
   const [page, setPage] = useState("today");
